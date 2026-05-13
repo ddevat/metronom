@@ -1,7 +1,10 @@
 var playBtn = document.getElementById("play-btn");
 var beats = document.querySelectorAll(".beat");
+var tempoSlider = document.getElementById("tempo-slider");
+var tempoValue = document.getElementById("tempo-value");
 var intervalId = null;
 var current = 0;
+var bpm = 100;
 var audioCtx = null;
 var clickBuffer = null;
 var accentBuffer = null;
@@ -58,7 +61,16 @@ playBtn.addEventListener("click", function () {
     playBtn.textContent = "Play";
   } else {
     highlightBeat();
-    intervalId = setInterval(highlightBeat, 600);
+    intervalId = setInterval(highlightBeat, 60000 / bpm);
     playBtn.textContent = "Stop";
+  }
+});
+
+tempoSlider.addEventListener("input", function () {
+  bpm = Number(tempoSlider.value);
+  tempoValue.textContent = bpm + " bpm";
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = setInterval(highlightBeat, 60000 / bpm);
   }
 });
