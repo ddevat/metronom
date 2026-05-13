@@ -2,6 +2,8 @@
 
 Webový metronom postavený na čistém HTML, CSS a JavaScriptu bez externích knihoven.
 
+**Online verze:** https://ddevat.github.io/metronom/
+
 ## Spuštění
 
 ### Přímo v prohlížeči
