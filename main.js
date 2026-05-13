@@ -7,14 +7,33 @@ var intervalId = null;
 var current = 0;
 var bpm = 100;
 var beatCount = 4;
+var beatModes = [];
+var MODES = ["normal", "accent", "muted"];
 
 function buildBeats(count) {
   beatsContainer.innerHTML = "";
+  beatModes = [];
   for (var i = 0; i < count; i++) {
+    beatModes.push(i === 0 ? "accent" : "normal");
     var div = document.createElement("div");
-    div.className = "beat";
+    div.className = "beat" + (i === 0 ? " accent" : "");
     div.textContent = i + 1;
+    div.setAttribute("data-index", i);
+    div.addEventListener("click", onBeatClick);
     beatsContainer.appendChild(div);
+  }
+}
+
+function onBeatClick(e) {
+  var idx = Number(e.currentTarget.getAttribute("data-index"));
+  var currentMode = beatModes[idx];
+  var nextIndex = (MODES.indexOf(currentMode) + 1) % MODES.length;
+  var nextMode = MODES[nextIndex];
+  beatModes[idx] = nextMode;
+  var el = e.currentTarget;
+  el.classList.remove("normal", "accent", "muted");
+  if (nextMode !== "normal") {
+    el.classList.add(nextMode);
   }
 }
 
@@ -61,7 +80,12 @@ function highlightBeat() {
   for (var i = 0; i < beats.length; i++) {
     beats[i].classList.remove("active");
   }
-  playClick(current === 0);
+  var mode = beatModes[current];
+  if (mode === "accent") {
+    playClick(true);
+  } else if (mode === "normal") {
+    playClick(false);
+  }
   beats[current].classList.add("active");
   current = (current + 1) % beats.length;
 }
