@@ -22,6 +22,22 @@
   border-color: #cc5200;
 }
 
+#time-signature-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+#time-signature-control label {
+  font-size: 18px;
+}
+
+#time-signature {
+  font-size: 18px;
+  padding: 4px 8px;
+}
+
 #tempo-control {
   display: flex;
   align-items: center;

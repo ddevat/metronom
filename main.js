@@ -1,10 +1,26 @@
 var playBtn = document.getElementById("play-btn");
-var beats = document.querySelectorAll(".beat");
+var beatsContainer = document.getElementById("beats");
 var tempoSlider = document.getElementById("tempo-slider");
 var tempoValue = document.getElementById("tempo-value");
+var timeSignature = document.getElementById("time-signature");
 var intervalId = null;
 var current = 0;
 var bpm = 100;
+var beatCount = 4;
+
+function buildBeats(count) {
+  beatsContainer.innerHTML = "";
+  for (var i = 0; i < count; i++) {
+    var div = document.createElement("div");
+    div.className = "beat";
+    div.textContent = i + 1;
+    beatsContainer.appendChild(div);
+  }
+}
+
+function getBeats() {
+  return beatsContainer.querySelectorAll(".beat");
+}
 var audioCtx = null;
 var clickBuffer = null;
 var accentBuffer = null;
@@ -41,6 +57,7 @@ function playClick(accent) {
 }
 
 function highlightBeat() {
+  var beats = getBeats();
   for (var i = 0; i < beats.length; i++) {
     beats[i].classList.remove("active");
   }
@@ -49,16 +66,21 @@ function highlightBeat() {
   current = (current + 1) % beats.length;
 }
 
+function stopMetronome() {
+  clearInterval(intervalId);
+  intervalId = null;
+  current = 0;
+  var beats = getBeats();
+  for (var i = 0; i < beats.length; i++) {
+    beats[i].classList.remove("active");
+  }
+  playBtn.textContent = "Play";
+}
+
 playBtn.addEventListener("click", function () {
   initAudio();
   if (intervalId) {
-    clearInterval(intervalId);
-    intervalId = null;
-    current = 0;
-    for (var i = 0; i < beats.length; i++) {
-      beats[i].classList.remove("active");
-    }
-    playBtn.textContent = "Play";
+    stopMetronome();
   } else {
     highlightBeat();
     intervalId = setInterval(highlightBeat, 60000 / bpm);
@@ -74,3 +96,16 @@ tempoSlider.addEventListener("input", function () {
     intervalId = setInterval(highlightBeat, 60000 / bpm);
   }
 });
+
+timeSignature.addEventListener("change", function () {
+  beatCount = Number(timeSignature.value.split("/")[0]);
+  buildBeats(beatCount);
+  current = 0;
+  if (intervalId) {
+    clearInterval(intervalId);
+    highlightBeat();
+    intervalId = setInterval(highlightBeat, 60000 / bpm);
+  }
+});
+
+buildBeats(beatCount);

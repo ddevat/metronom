@@ -9,11 +9,24 @@
 </head>
 
 <body>
-  <div id="beats">
-    <div class="beat">1</div>
-    <div class="beat">2</div>
-    <div class="beat">3</div>
-    <div class="beat">4</div>
+  <div id="beats"></div>
+  <div id="time-signature-control">
+    <label for="time-signature">Rytmus:</label>
+    <select id="time-signature">
+      <option value="2/2">2/2</option>
+      <option value="2/4">2/4</option>
+      <option value="3/4">3/4</option>
+      <option value="4/4" selected>4/4</option>
+      <option value="5/4">5/4</option>
+      <option value="6/4">6/4</option>
+      <option value="7/4">7/4</option>
+      <option value="3/8">3/8</option>
+      <option value="5/8">5/8</option>
+      <option value="6/8">6/8</option>
+      <option value="7/8">7/8</option>
+      <option value="9/8">9/8</option>
+      <option value="12/8">12/8</option>
+    </select>
   </div>
   <div id="tempo-control">
     <input id="tempo-slider" type="range" min="1" max="200" value="100">
