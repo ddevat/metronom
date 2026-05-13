@@ -1,14 +1,18 @@
 var playBtn = document.getElementById("play-btn");
 var beatsContainer = document.getElementById("beats");
-var tempoSlider = document.getElementById("tempo-slider");
-var tempoValue = document.getElementById("tempo-value");
 var timeSignature = document.getElementById("time-signature");
+var wheel = document.getElementById("wheel");
 var intervalId = null;
 var current = 0;
 var bpm = 100;
 var beatCount = 4;
 var beatModes = [];
 var MODES = ["normal", "accent", "muted"];
+var ITEM_HEIGHT = 36;
+var MIN_BPM = 1;
+var MAX_BPM = 200;
+var wheelItems = [];
+var scrollTimeout = null;
 
 function buildBeats(count) {
   beatsContainer.innerHTML = "";
@@ -40,6 +44,7 @@ function onBeatClick(e) {
 function getBeats() {
   return beatsContainer.querySelectorAll(".beat");
 }
+
 var audioCtx = null;
 var clickBuffer = null;
 var accentBuffer = null;
@@ -98,7 +103,7 @@ function stopMetronome() {
   for (var i = 0; i < beats.length; i++) {
     beats[i].classList.remove("active");
   }
-  playBtn.textContent = "Play";
+  playBtn.textContent = "▶";
 }
 
 playBtn.addEventListener("click", function () {
@@ -108,16 +113,7 @@ playBtn.addEventListener("click", function () {
   } else {
     highlightBeat();
     intervalId = setInterval(highlightBeat, 60000 / bpm);
-    playBtn.textContent = "Stop";
-  }
-});
-
-tempoSlider.addEventListener("input", function () {
-  bpm = Number(tempoSlider.value);
-  tempoValue.textContent = bpm + " bpm";
-  if (intervalId) {
-    clearInterval(intervalId);
-    intervalId = setInterval(highlightBeat, 60000 / bpm);
+    playBtn.textContent = "■";
   }
 });
 
@@ -131,5 +127,69 @@ timeSignature.addEventListener("change", function () {
     intervalId = setInterval(highlightBeat, 60000 / bpm);
   }
 });
+
+// --- Wheel picker ---
+
+function buildWheel() {
+  var pad = (140 - ITEM_HEIGHT) / 2;
+  var inner = document.createElement("div");
+  inner.style.paddingTop = pad + "px";
+  inner.style.paddingBottom = pad + "px";
+  for (var i = MIN_BPM; i <= MAX_BPM; i++) {
+    var item = document.createElement("div");
+    item.className = "wheel-item";
+    item.textContent = i;
+    item.setAttribute("data-bpm", i);
+    inner.appendChild(item);
+    wheelItems.push(item);
+  }
+  wheel.appendChild(inner);
+}
+
+function getSelectedBpmFromScroll() {
+  var scrollTop = wheel.scrollTop;
+  var index = Math.round(scrollTop / ITEM_HEIGHT);
+  if (index < 0) index = 0;
+  if (index > MAX_BPM - MIN_BPM) index = MAX_BPM - MIN_BPM;
+  return index + MIN_BPM;
+}
+
+function updateWheelHighlight() {
+  var selectedBpm = getSelectedBpmFromScroll();
+  for (var i = 0; i < wheelItems.length; i++) {
+    if (Number(wheelItems[i].getAttribute("data-bpm")) === selectedBpm) {
+      wheelItems[i].classList.add("selected");
+    } else {
+      wheelItems[i].classList.remove("selected");
+    }
+  }
+}
+
+function scrollToBpm(value) {
+  var index = value - MIN_BPM;
+  wheel.scrollTop = index * ITEM_HEIGHT;
+}
+
+function onWheelScroll() {
+  updateWheelHighlight();
+  clearTimeout(scrollTimeout);
+  scrollTimeout = setTimeout(function () {
+    var newBpm = getSelectedBpmFromScroll();
+    if (newBpm !== bpm) {
+      bpm = newBpm;
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = setInterval(highlightBeat, 60000 / bpm);
+      }
+    }
+    scrollToBpm(bpm);
+  }, 80);
+}
+
+wheel.addEventListener("scroll", onWheelScroll);
+
+buildWheel();
+scrollToBpm(bpm);
+updateWheelHighlight();
 
 buildBeats(beatCount);
